@@ -7,15 +7,17 @@ contract KingpantAccessController is AccessControl {
 
   mapping(string => bytes32) public roleBytesByRoleName;
 
-  error InvalidAddress(address caller, address setter);
+  error InvalidAddress(address setter);
   error NotRootOwner(address caller);
+  error ExistRoleName();
+  error NotExistRoleName();
 
   event RoleNameAdd(address caller, string roleName);
   event RoleNameRemove(address caller, string roleName);
 
   constructor(address rootOwner) {
     if (rootOwner == address(0)) {
-      revert InvalidAddress(msg.sender, rootOwner);
+      revert InvalidAddress(rootOwner);
     }
 
     roleBytesByRoleName[ROOT_OWNER_NAME] = keccak256(abi.encodePacked(ROOT_OWNER_NAME));
@@ -32,6 +34,10 @@ contract KingpantAccessController is AccessControl {
   function addRole(string memory roleName) external {
     _onlyRootOwner();
 
+    if (roleBytesByRoleName[roleName] != bytes32(0)) {
+      revert ExistRoleName();
+    }
+
     roleBytesByRoleName[roleName] = keccak256(abi.encodePacked(roleName));
 
     _setRoleAdmin(roleBytesByRoleName[roleName], roleBytesByRoleName[ROOT_OWNER_NAME]);
@@ -41,6 +47,10 @@ contract KingpantAccessController is AccessControl {
 
   function removeRole(string memory roleName) external {
     _onlyRootOwner();
+
+    if (roleBytesByRoleName[roleName] == bytes32(0)) {
+      revert NotExistRoleName();
+    }
 
     roleBytesByRoleName[roleName] = bytes32(0);
 

@@ -2,6 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "hardhat-contract-sizer";
 import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-toolbox";
+import "solidity-coverage";
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "your private key";
 
